@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>数据访问对象模式 | hyh&#39;s Blog</title>
+    <meta name="description" content="This is a blog built by VuePress">
+    
+    
+    <link rel="preload" href="/blog/assets/css/0.styles.a699ac0e.css" as="style"><link rel="preload" href="/blog/assets/js/app.2aaa3086.js" as="script"><link rel="preload" href="/blog/assets/js/3.06f3a062.js" as="script"><link rel="preload" href="/blog/assets/js/4.6ba84a66.js" as="script"><link rel="preload" href="/blog/assets/js/25.8c2a1bcc.js" as="script"><link rel="prefetch" href="/blog/assets/js/10.4dfe3526.js"><link rel="prefetch" href="/blog/assets/js/11.2c57d4c8.js"><link rel="prefetch" href="/blog/assets/js/12.b56e9c7c.js"><link rel="prefetch" href="/blog/assets/js/13.2f86caa9.js"><link rel="prefetch" href="/blog/assets/js/14.7c79aad0.js"><link rel="prefetch" href="/blog/assets/js/15.a69fe75f.js"><link rel="prefetch" href="/blog/assets/js/16.36261ae1.js"><link rel="prefetch" href="/blog/assets/js/17.7ea18c09.js"><link rel="prefetch" href="/blog/assets/js/18.d2f8a8eb.js"><link rel="prefetch" href="/blog/assets/js/19.03ac63e8.js"><link rel="prefetch" href="/blog/assets/js/20.93b2b942.js"><link rel="prefetch" href="/blog/assets/js/21.fbf7fe82.js"><link rel="prefetch" href="/blog/assets/js/22.dd40b52c.js"><link rel="prefetch" href="/blog/assets/js/23.df8f2840.js"><link rel="prefetch" href="/blog/assets/js/24.146c73f7.js"><link rel="prefetch" href="/blog/assets/js/26.a901e6d8.js"><link rel="prefetch" href="/blog/assets/js/27.19563b00.js"><link rel="prefetch" href="/blog/assets/js/5.4e0ed1df.js"><link rel="prefetch" href="/blog/assets/js/6.e873ec07.js"><link rel="prefetch" href="/blog/assets/js/7.69bcd55c.js"><link rel="prefetch" href="/blog/assets/js/8.6a671391.js"><link rel="prefetch" href="/blog/assets/js/9.bc8f910d.js"><link rel="prefetch" href="/blog/assets/js/vuejs-paginate.0d32d461.js">
+    <link rel="stylesheet" href="/blog/assets/css/0.styles.a699ac0e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuperess-theme-blog__global-layout"><section id="header-wrapper"><header id="header"><div class="header-wrapper"><div class="title"><a href="/blog/" class="nav-link home-link">hyh's Blog
+        </a></div> <div class="header-right-wrap"><ul class="nav"><li class="nav-item"><a href="/blog/" class="nav-link">文章</a></li><li class="nav-item"><a href="/blog/tag/" class="nav-link">分类</a></li></ul> <div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div></div></div></header></section> <div id="mobile-header"><div class="mobile-header-bar"><div class="mobile-header-title"><a href="/blog/" class="nav-link mobile-home-link">hyh's Blog
+      </a> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></div> <div class="mobile-menu-wrapper"><hr class="menu-divider"> <ul class="mobile-nav"><li class="mobile-nav-item"><a href="/blog/" class="nav-link">文章</a></li><li class="mobile-nav-item"><a href="/blog/tag/" class="nav-link">分类</a></li></ul></div></div></div> <div class="content-wrapper"><div id="vuperess-theme-blog__post-layout"><div class="vuepress-blog-theme-content content__default"><h2 id="概念"><a href="#概念" aria-hidden="true" class="header-anchor">#</a> 概念</h2> <p><code>数据访问对象模式 (Data access object-DAO)</code>：抽象和封装对数据源的访问与存储，DAO通过对数据源链接的管理方便对数据的访问和存储。</p> <h2 id="为什么要这样做"><a href="#为什么要这样做" aria-hidden="true" class="header-anchor">#</a> 为什么要这样做</h2> <p>当我们在前端存储数据的时候，每次添加一条数据，都要考虑是否会覆盖他人的数据，或被别人的数据覆盖，添加一条数据为兼容所有的浏览器要处理很多问题...</p> <p>这样的情况我们就可以建立一个数据访问对象类DAO，这样每个人都可以在自己的模块内通过创建DAO实例来使用了，这样做就可以方便管理。</p> <h2 id="怎样来做"><a href="#怎样来做" aria-hidden="true" class="header-anchor">#</a> 怎样来做</h2> <p>关于数据存储我们最常用的就是增删改查这些操作，我们可以通过封装一个类，来统一实现这些操作。
+然而本地存储数据库不同于服务端关系型数据库，他是将数据保存在 <code>localStorage</code> 这个对象中。所以我们需要通过添加标识前缀来'分割' <code>localStorage</code> 对象。
+本地存储对数据的保存实际上是一个字符串属性。有时候了解他的存储时间也是很有必要的，他能方便日过对数据的管理，因此我们需要添加一个时间戳。</p> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">/***
+ *本地存储类
+ *参数 preId        本地存储数据库的前缀
+ *参数 timeSign     时间戳与存储数据之间的拼接符
+ *
+***/</span>
+<span class="token keyword">var</span> <span class="token function-variable function">BaseLocalStorage</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">preId<span class="token punctuation">,</span> timeSign</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 定义本地存储数据库前缀</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>preId <span class="token operator">=</span> preId<span class="token punctuation">;</span>
+    <span class="token comment">// 定义时间戳与存储数据之间的拼接符</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>timeSign <span class="token operator">=</span> timeSign <span class="token operator">||</span> <span class="token string">&quot;|-|&quot;</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br></div></div><h3 id="定义数据的操作状态"><a href="#定义数据的操作状态" aria-hidden="true" class="header-anchor">#</a> 定义数据的操作状态</h3> <p>定义数据的操作状态使得我们可以捕获到在数据操作过程中的异常。</p> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">// 本地存储类的原型方法</span>
+BaseLocalStorage<span class="token punctuation">.</span>protoType <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 操作状态</span>
+    status <span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token constant">SUCCESS</span> <span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>    <span class="token comment">// 成功</span>
+        <span class="token constant">FAILURE</span> <span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>    <span class="token comment">// 失败</span>
+        <span class="token constant">OVERFLOW</span> <span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span>   <span class="token comment">// 溢出</span>
+        <span class="token constant">TIMEOUT</span> <span class="token punctuation">:</span> <span class="token number">3</span><span class="token punctuation">,</span>    <span class="token comment">// 过期</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token comment">// 保存本地储存引用</span>
+    storage <span class="token punctuation">:</span> localStorage <span class="token operator">||</span> window<span class="token punctuation">.</span>localStorage<span class="token punctuation">,</span>
+    <span class="token comment">// 获取本地数据库中 数据的真实字段</span>
+    <span class="token function-variable function">getKey</span> <span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">key</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>preId <span class="token operator">+</span> key
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token comment">// 添加/修改数据</span>
+    <span class="token function-variable function">set</span> <span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> value<span class="token punctuation">,</span> callback<span class="token punctuation">,</span> time</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token comment">// 获取数据</span>
+    <span class="token function-variable function">get</span> <span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function-variable function">remove</span> <span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// ...</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br></div></div><h3 id="添加数据"><a href="#添加数据" aria-hidden="true" class="header-anchor">#</a> 添加数据</h3> <p>在set方法中，我们要在字段中添加时间戳，并且向本地存储添加数据实质上是调用 <code>localStorage</code> 中的 <code>setItem</code> 方法，最后我们还有执行回调函数并将操作的结果传入回调函数。</p> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">/***
+* 添加/修改 数据
+* 参数 key      数据字段标识
+* 参数 value    数据值
+* 参数 callback 回调函数
+* 参数 time     添加时间
+***/</span>
+
+<span class="token function-variable function">set</span> <span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> value<span class="token punctuation">,</span> callback<span class="token punctuation">,</span> time</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 默认操作状态时成功</span>
+    <span class="token keyword">var</span> status <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">SUCCESS</span><span class="token punctuation">,</span>
+    <span class="token comment">// 获取真实字段名</span>
+        key <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span><span class="token punctuation">{</span>
+        <span class="token comment">// 设置传入的有效期时间</span>
+        time <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span>time<span class="token punctuation">)</span><span class="token punctuation">.</span>getTime <span class="token operator">||</span> time<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// 默认的有效时间 一个月</span>
+        time <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">24</span> <span class="token operator">*</span> <span class="token number">31</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">try</span><span class="token punctuation">{</span>
+        <span class="token comment">// 向数据库中添加数据</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>storage<span class="token punctuation">.</span><span class="token function">setItem</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> time <span class="token operator">+</span> time<span class="token punctuation">.</span>timeSign <span class="token operator">+</span> value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// 发生溢出错误，返回溢出状态</span>
+        status <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">OVERFLOW</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 有回调函数就执行回调函数，并传入操作状态，真实保存的数据字段和数据值</span>
+    callback <span class="token operator">&amp;&amp;</span> <span class="token function">callback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span>status<span class="token punctuation">,</span>key<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br></div></div><p>::: warning 思考
+这里的 <code>this</code> 绑定的是谁的作用域？有什么作用？
+:::</p> <p>::: danger STOP
+Danger zone, do not proceed
+:::</p> <h3 id="查找数据"><a href="#查找数据" aria-hidden="true" class="header-anchor">#</a> 查找数据</h3> <p>获取数据我们是调用 <code>getItem</code> 的方法。</p> <p>这里有几种情况我们需要注意到：</p> <ol><li><p>该数据的字段本身就不存在，这样应该返回失败状态；</p></li> <li><p>操作成功但是没有获取到值，此时也应该返回失败状态；</p></li> <li><p>获取到值，但是值已经过期，此时应该删除数据；</p></li> <li><p>成功获取数据并可成功返回。</p></li></ol> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">/**
+ * 获取数据
+ * 参数key      数据字段标识
+ * 参数callback 回调函数
+**/</span>
+<span class="token function-variable function">get</span><span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> callback</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 默认设置操作状态为成功</span>
+    <span class="token keyword">var</span> status <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">SUCCESS</span><span class="token punctuation">,</span>
+        <span class="token comment">// 获取实际存储的key值</span>
+        key <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token comment">// 默认值为空</span>
+        value <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">,</span>
+        <span class="token comment">// 时间戳与存储数据之间的拼接长度</span>
+        timeSignLen <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>timeSign<span class="token punctuation">.</span>length<span class="token punctuation">,</span>
+        <span class="token comment">// 缓存当前对象</span>
+        that <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">,</span>
+        <span class="token comment">// 时间戳与存储数据之间的拼接起始位置</span>
+        index<span class="token punctuation">,</span>
+        <span class="token comment">// 时间戳</span>
+        time<span class="token punctuation">,</span>
+        <span class="token comment">// 最终获取到的数据</span>
+        result<span class="token punctuation">;</span>
+    <span class="token keyword">try</span><span class="token punctuation">{</span>
+        <span class="token comment">// 获取字段对应的数据字符串</span>
+        value <span class="token operator">=</span> that<span class="token punctuation">.</span>storage<span class="token punctuation">.</span><span class="token function">getItem</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// 第一种错误情况</span>
+        result <span class="token operator">=</span> <span class="token punctuation">{</span>
+            status <span class="token punctuation">:</span> that<span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">FAILURE</span><span class="token punctuation">,</span>
+            value <span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment">// 执行回调并返回</span>
+        callback <span class="token operator">&amp;&amp;</span> <span class="token function">callback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> result<span class="token punctuation">.</span>stauts<span class="token punctuation">,</span> result<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 如果成功获取数据字符串</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">// 获取时间戳与存储数据之间拼接符的其实位置</span>
+        index <span class="token operator">=</span> value<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>that<span class="token punctuation">.</span>timeSign<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 获取时间戳</span>
+        time <span class="token operator">=</span> <span class="token operator">+</span>value<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>index<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// 如果时间过期</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span>time<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&gt;</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">||</span> time <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token comment">// 获取数据结果</span>
+            value <span class="token operator">=</span> value<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span>index <span class="token operator">+</span> timeSignLen<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+            <span class="token comment">// 已经过期</span>
+            value <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+            <span class="token comment">// 设置状态为过期</span>
+            status <span class="token operator">=</span> that<span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">TIMEOUT</span><span class="token punctuation">;</span>
+            <span class="token comment">// 删除该字段</span>
+            that<span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token keyword">else</span><span class="token punctuation">{</span>
+        <span class="token comment">// 为获取到数据 字符串状态为失败状态</span>
+        status <span class="token operator">=</span> that<span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">FAILURE</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 设置结果</span>
+    result <span class="token operator">=</span> <span class="token punctuation">{</span>
+        status <span class="token punctuation">:</span> status<span class="token punctuation">,</span>
+        value <span class="token punctuation">:</span> value
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token comment">// 执行回调函数</span>
+    callback <span class="token operator">&amp;&amp;</span> <span class="token function">callback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> result<span class="token punctuation">.</span>status<span class="token punctuation">,</span> result<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> result
+<span class="token punctuation">}</span>
+
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br><span class="line-number">61</span><br><span class="line-number">62</span><br><span class="line-number">63</span><br><span class="line-number">64</span><br><span class="line-number">65</span><br><span class="line-number">66</span><br><span class="line-number">67</span><br><span class="line-number">68</span><br><span class="line-number">69</span><br></div></div><h3 id="删除数据"><a href="#删除数据" aria-hidden="true" class="header-anchor">#</a> 删除数据</h3> <p>删除数据调用的 <code>removeItem</code> 方法。
+考虑一下三种情况：</p> <ol><li><p>没有该字段，操作结果返回为失败；</p></li> <li><p>删除时发生异常，返回失败状态；</p></li> <li><p>删除成功。</p></li></ol> <div class="language-javascript line-numbers-mode"><pre class="language-javascript"><code><span class="token comment">/**
+ * 删除数据
+ * 参数 key         数据字段标识符
+ * 参数 callback    回调函数
+ *
+**/</span>
+<span class="token function-variable function">remove</span> <span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">// 设置默认状态为失败</span>
+    <span class="token keyword">var</span> stauts <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">FAILURE</span><span class="token punctuation">,</span>
+        <span class="token comment">// 获取实际数据字段名称</span>
+        key <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getKey</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token comment">// 设置默认的数据结果为空</span>
+        value <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">try</span><span class="token punctuation">{</span>
+        <span class="token comment">// 获取字段对应的数据</span>
+        value <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>storage<span class="token punctuation">.</span><span class="token function">getItem</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token comment">// 如果数据存在</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            <span class="token comment">// 删除数据</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>storage<span class="token punctuation">.</span><span class="token function">removeItem</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">// 设置操作成功</span>
+            status <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>status<span class="token punctuation">.</span><span class="token constant">SUCCESS</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// 执行回调 如果操作成功就返回真实的数据结果，否则返回为空</span>
+    callback <span class="token operator">&amp;&amp;</span> <span class="token function">callback</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> status<span class="token punctuation">,</span> status <span class="token operator">&gt;</span> <span class="token number">0</span> <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token punctuation">:</span> value<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span>value<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>timeSign<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span>timeSign<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br></div></div></div> <div class="sticker vuepress-toc"><div class="vuepress-toc-item vuepress-toc-h2 active"><a href="#概念" title="概念">概念</a></div><div class="vuepress-toc-item vuepress-toc-h2"><a href="#为什么要这样做" title="为什么要这样做">为什么要这样做</a></div><div class="vuepress-toc-item vuepress-toc-h2"><a href="#怎样来做" title="怎样来做">怎样来做</a></div><div class="vuepress-toc-item vuepress-toc-h3"><a href="#定义数据的操作状态" title="定义数据的操作状态">定义数据的操作状态</a></div><div class="vuepress-toc-item vuepress-toc-h3"><a href="#添加数据" title="添加数据">添加数据</a></div><div class="vuepress-toc-item vuepress-toc-h3"><a href="#查找数据" title="查找数据">查找数据</a></div><div class="vuepress-toc-item vuepress-toc-h3"><a href="#删除数据" title="删除数据">删除数据</a></div></div></div></div> <footer class="footer" data-v-0d113134><div class="footer-left-wrap" data-v-0d113134><ul class="contact" data-v-0d113134><li class="contact-item" data-v-0d113134><a href="https://github.com/hhhhhhqqqqqq?tab=repositories" target="_blank" rel="noopener noreferrer" class="nav-link external" data-v-0d113134><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github" data-v-0d113134><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" data-v-0d113134></path></svg>
+          
+        </a></li></ul></div> <div class="footer-right-wrap" data-v-0d113134><ul class="copyright" data-v-0d113134><li class="copyright-item" data-v-0d113134><a href="https://policies.google.com/privacy?hl=en-US" target="_blank" rel="noopener noreferrer" class="nav-link external" data-v-0d113134>Privacy Policy</a></li><li class="copyright-item" data-v-0d113134><a href="/blog/2019/10/27/data-access-object/.html" class="nav-link" data-v-0d113134>MIT Licensed | Copyright © 2019-present Vue.js</a></li></ul></div></footer></div><div class="global-ui"></div></div>
+    <script src="/blog/assets/js/app.2aaa3086.js" defer></script><script src="/blog/assets/js/3.06f3a062.js" defer></script><script src="/blog/assets/js/4.6ba84a66.js" defer></script><script src="/blog/assets/js/25.8c2a1bcc.js" defer></script>
+  </body>
+</html>
